@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TarkVtark — Present. Reasoned. Changed.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f0e8;
+    --accent: #c0392b;
+    --accent2: #e67e22;
+    --muted: #6b6560;
+    --border: #d4cfc7;
+    --card: #faf7f2;
+    --green: #27ae60;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Playfair Display', serif;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+
+  /* MANIFESTO STRIP */
+  .manifesto-strip {
+    background: var(--accent);
+    color: var(--paper);
+    padding: 0.6rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .manifesto-pill {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.9;
+  }
+
+  .manifesto-pill::before {
+    content: '—';
+    opacity: 0.5;
+  }
+
+  .manifesto-center {
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* NAV */
+  nav {
+    border-bottom: 2px solid var(--ink);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--sans);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .nav-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3px 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--ink);
+    cursor: pointer;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active {
+    border-bottom-color: var(--accent);
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--ink);
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .nav-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .nav-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: 64px;
+    background: rgba(10, 10, 10, 0.45);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .nav-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* HERO TICKER */
+  .ticker-wrap {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker {
+    display: inline-block;
+    animation: ticker 60s linear infinite;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .ticker-item {
+    margin-right: 4rem;
+  }
+
+  .ticker-item::before {
+    content: '◆ ';
+    color: var(--accent);
+  }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 {
+    font-family: var(--sans);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+    position: relative;
+  }
+
+  .hero-desc {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 2rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .stat-item {
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+  }
+
+  .stat-num {
+    font-family: var(--sans);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: auto 1fr;
+    column-gap: 3rem;
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+
+  .main-issues {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--ink);
+    min-height: 2.75rem;
+    box-sizing: border-box;
+  }
+
+  .main-header-left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .main-header-right {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .section-title {
+    font-family: var(--sans);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  /* TOPIC CARDS */
+  .topic-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .topic-card:nth-child(1) { animation-delay: 0.05s; }
+  .topic-card:nth-child(2) { animation-delay: 0.1s; }
+  .topic-card:nth-child(3) { animation-delay: 0.15s; }
+  .topic-card:nth-child(4) { animation-delay: 0.2s; }
+
+  .topic-card.urgent {
+    border-left: 4px solid var(--accent);
+  }
+
+  .card-header {
+    padding: 1.25rem 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+  }
+
+  .tag.urgent-tag { background: var(--accent); color: white; border-color: var(--accent); }
+  .tag.cat-tag { background: transparent; color: var(--muted); }
+
+  .card-date {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .card-body {
+    padding: 1rem 1.25rem;
+  }
+
+  .card-title {
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .card-summary {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  /* PROGRESS BARS */
+  .impact-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .impact-item label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 1s ease;
+  }
+
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.orange { background: var(--accent2); }
+
+  .impact-val {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .card-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-footer-left {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .read-btn {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .read-btn:hover { background: var(--accent); }
+
+  /* SOURCE BADGE */
+  .sources-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .source-badge {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    padding: 2px 7px;
+    background: #e8e3db;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+
+  /* CARD SOURCE FOOTER */
+  .card-source-tag {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    padding: 2px 8px;
+    background: var(--ink);
+    color: var(--paper);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* TARK / VITARK LABELS */
+  .tark-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border: 1.5px solid var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .tark-label.is-tark { background: var(--ink); color: var(--paper); }
+  .tark-label.is-vitark { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* VITARK FLOW — solution pipeline visualization */
+  .vitark-flow {
+    margin: 1rem 0;
+    position: relative;
+  }
+
+  .vitark-step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0;
+    position: relative;
+  }
+
+  .vitark-step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .vitark-node {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: white;
+    z-index: 1;
+  }
+
+  .vitark-node.fix { background: var(--green); }
+  .vitark-node.risk { background: var(--accent); }
+  .vitark-node.who { background: var(--accent2); }
+  .vitark-node.check { background: #8e44ad; }
+
+  .vitark-line {
+    width: 2px;
+    flex: 1;
+    min-height: 16px;
+    background: var(--border);
+    margin: 3px 0;
+  }
+
+  .vitark-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .vitark-card-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+    font-family: var(--sans);
+  }
+
+  .vitark-card-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .vitark-card.risk-card {
+    border-left: 3px solid var(--accent);
+    background: #fdf5f5;
+  }
+
+  .vitark-card.check-card {
+    border-left: 3px solid #8e44ad;
+    background: #f9f5fd;
+  }
+
+  .vitark-card.who-card {
+    border-left: 3px solid var(--accent2);
+    background: #fdf8f0;
+  }
+
+  /* RISK METER */
+  .risk-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+  }
+
+  .risk-dots {
+    display: flex;
+    gap: 3px;
+  }
+
+  .risk-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .risk-dot.filled { background: var(--accent); }
+  .risk-dot.filled.orange { background: var(--accent2); }
+  .risk-dot.filled.green { background: var(--green); }
+
+  .risk-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* MODAL wider */
+  .modal-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    background: var(--card);
+    border: 2px solid var(--ink);
+  }
+
+  .modal-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--paper);
+    color: var(--muted);
+    text-align: left;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+  }
+
+  .modal-tab:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .modal-tab-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+  }
+
+  .modal-tab-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .modal-tab-text strong {
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .modal-tab-text small {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    opacity: 0.85;
+  }
+
+  .modal-tab.tark-tab.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0 var(--accent);
+  }
+
+  .modal-tab.tark-tab.active .modal-tab-icon {
+    color: var(--accent2);
+  }
+
+  .modal-tab.vitark-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .modal-tab.vitark-tab.active .modal-tab-icon {
+    color: #ffd;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* SIDEBAR */
+  .sidebar {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    position: sticky;
+    top: 80px;
+  }
+
+  .sidebar-title {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* FLOW DIAGRAM */
+  .flow-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flow-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 0.85rem;
+    padding-bottom: 1.1rem;
+  }
+
+  .flow-step:last-child {
+    padding-bottom: 0;
+  }
+
+  .flow-step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .flow-dot.active { background: var(--accent); }
+
+  .flow-line {
+    width: 2px;
+    flex: 1;
+    min-height: 14px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .flow-step:last-child .flow-line {
+    display: none;
+  }
+
+  .flow-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    padding-top: 3px;
+  }
+
+  .flow-text strong {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-bottom: 3px;
+    color: var(--ink);
+  }
+
+  .flow-text span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.74rem;
+    line-height: 1.5;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.85);
+    z-index: 500;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+  }
+
+  .modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; }
+
+  .modal {
+    background: var(--paper);
+    max-width: 860px;
+    width: 100%;
+    animation: modalIn 0.25s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-topbar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--paper);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-body { padding: 2rem; }
+
+  .modal-tag-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+
+  .modal-title {
+    font-family: var(--sans);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .modal-section {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+  .modal-section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .modal-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .modal-text {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #333;
+  }
+
+  /* SYSTEM FLOW — how it works visualization */
+  .system-flow {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem 0 0;
+  }
+
+  .system-step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+  }
+
+  .system-step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .system-node {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: white;
+  }
+
+  .system-node.ok { background: var(--green); }
+  .system-node.warn { background: var(--accent2); }
+  .system-node.fail { background: var(--accent); }
+
+  .system-line {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  .system-step:last-child .system-line { display: none; }
+
+  .system-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.65rem;
+    position: relative;
+  }
+
+  .system-card.ok { border-left: 3px solid var(--green); }
+  .system-card.warn { border-left: 3px solid var(--accent2); background: #fdf8f0; }
+  .system-card.fail { border-left: 3px solid var(--accent); background: #fdf5f5; }
+
+  .system-card-title {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.35;
+    padding-right: 5.5rem;
+  }
+
+  .system-card-sub {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    line-height: 1.45;
+  }
+
+  .system-status-tag {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+  }
+
+  .system-status-tag.ok { background: #e8f5ee; color: var(--green); border-color: var(--green); }
+  .system-status-tag.warn { background: #fef3e2; color: var(--accent2); border-color: var(--accent2); }
+  .system-status-tag.fail { background: #fde8e8; color: var(--accent); border-color: var(--accent); }
+
+  .system-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-family: var(--mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .system-legend span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .system-legend i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .system-legend i.ok { background: var(--green); }
+  .system-legend i.warn { background: var(--accent2); }
+  .system-legend i.fail { background: var(--accent); }
+
+  .system-failure-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 1rem 1.15rem;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    margin-top: 0.5rem;
+  }
+
+  .system-failure-box strong {
+    color: var(--accent2);
+  }
+
+  .solution-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .solution-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--accent);
+    color: white;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    text-align: center;
+  }
+
+  .stat-box-num {
+    font-family: var(--sans);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-box-label {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .tark-vitark-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    align-items: stretch;
+  }
+
+  .tv-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 180px;
+  }
+
+  .tv-card h3 {
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    min-height: 2.6em;
+    line-height: 1.3;
+  }
+
+  .tv-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 0;
+    flex: 1;
+  }
+
+  .tv-card.tark-card { border-left: 4px solid var(--ink); }
+  .tv-card.vitark-card { border-left: 4px solid var(--accent); }
+
+  /* ABOUT page */
+  .about-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .about-page h2 {
+    font-family: var(--sans);
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+
+  .about-page p {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 1rem;
+  }
+
+  .principle-list {
+    list-style: none;
+    margin: 1.5rem 0;
+  }
+
+  .principle-list li {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .principle-list li::before {
+    content: attr(data-n);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--ink);
+    color: var(--paper);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .policy-note {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--ink);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #444;
+  }
+
+  .policy-note strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .contact-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #444;
+  }
+
+  .contact-box a {
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .contact-box a:hover {
+    color: var(--accent);
+  }
+
+  .contact-pending {
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+
+  .footer-email {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .footer-email:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .cta-btn {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 18px;
+    border: 2px solid var(--ink);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .cta-btn.cta-tark {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .cta-btn.cta-tark:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .cta-btn.cta-vitark {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .cta-btn.cta-vitark:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .share-cta-banner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 3rem;
+  }
+
+  .share-cta {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  .share-cta-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .share-cta h3 {
+    font-family: var(--sans);
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .share-cta p {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #bbb;
+    max-width: 540px;
+    margin: 0 auto 1.25rem;
+  }
+
+  .share-cta-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .share-cta .cta-btn.cta-vitark {
+    background: transparent;
+    color: var(--paper);
+    border-color: var(--accent);
+  }
+
+  .share-cta .cta-btn.cta-vitark:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .share-cta-note {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #888;
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+
+  .share-cta-note a {
+    color: var(--accent2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent2);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .footer-link {
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    font-weight: 500;
+  }
+
+  .footer-link:hover {
+    border-bottom-color: var(--accent);
+  }
+
+  .footer-center {
+    text-align: center;
+    font-size: 0.58rem;
+    line-height: 1.5;
+    max-width: 420px;
+  }
+
+  .flow-mobile-header {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1rem; }
+    .logo { font-size: 1.25rem; }
+
+    .nav-toggle { display: flex; }
+
+    .nav-links {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      gap: 0;
+      background: var(--paper);
+      border-bottom: 2px solid var(--ink);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      z-index: 101;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.3s ease, opacity 0.25s;
+    }
+
+    .nav-links.open {
+      max-height: 320px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav-links li { width: 100%; }
+
+    .nav-links a {
+      display: block;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      border-left: 3px solid transparent;
+      font-size: 0.85rem;
+    }
+
+    .nav-links li:last-child a { border-bottom: none; }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      border-bottom-color: var(--border);
+      border-left-color: var(--accent);
+      background: var(--card);
+    }
+
+    .nav-overlay { display: block; }
+
+    .manifesto-strip {
+      padding: 0.65rem 1rem;
+      gap: 0.5rem;
+    }
+
+    .manifesto-center {
+      font-size: 0.78rem;
+      text-align: center;
+      width: 100%;
+      order: -1;
+    }
+
+    .manifesto-pill { font-size: 0.58rem; }
+
+    .ticker { font-size: 0.65rem; }
+
+    .hero {
+      padding: 2rem 1rem 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.65rem, 7vw, 2.2rem);
+    }
+
+    .hero-desc {
+      font-size: 0.88rem;
+      max-width: none;
+    }
+
+    .hero-cta {
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-cta .cta-btn {
+      flex: 1 1 auto;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .share-cta-banner {
+      padding: 0 1rem 2rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .stat-item:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      padding: 1.25rem 1rem 2rem;
+      column-gap: 0;
+      row-gap: 1.25rem;
+    }
+
+    .main-header-left,
+    .main-issues,
+    .sidebar {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .main-header-right {
+      display: none;
+    }
+
+    .section-header {
+      min-height: auto;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+    }
+
+    .sidebar {
+      position: static;
+      margin-top: 0.5rem;
+    }
+
+    .flow-mobile-header {
+      display: block;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 1rem 1rem 0;
+    }
+
+    .card-body { padding: 0.85rem 1rem; }
+
+    .card-title { font-size: 0.98rem; }
+
+    .card-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+    }
+
+    .card-footer-left { gap: 0.35rem; }
+
+    .read-btn {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.65rem;
+      text-align: center;
+    }
+
+    .impact-row { grid-template-columns: 1fr; }
+
+    .tark-vitark-grid { grid-template-columns: 1fr; }
+
+    .tv-card { min-height: auto; }
+    .tv-card h3 { min-height: auto; }
+
+    .about-page {
+      padding: 2rem 1rem;
+    }
+
+    .about-page h2 {
+      font-size: 1.5rem;
+    }
+
+    .modal-overlay {
+      padding: 0.5rem;
+      align-items: flex-start;
+    }
+
+    .modal {
+      max-height: calc(100vh - 1rem);
+      overflow-y: auto;
+    }
+
+    .modal-topbar {
+      padding: 0.65rem 1rem;
+      font-size: 0.58rem;
+    }
+
+    .modal-body { padding: 1rem; }
+
+    .modal-title {
+      font-size: 1.2rem;
+    }
+
+    .modal-tabs {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 0.4rem;
+    }
+
+    .modal-tab {
+      padding: 0.85rem 1rem;
+    }
+
+    .modal-tab.active {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .modal-tab-text strong {
+      font-size: 0.95rem;
+    }
+
+    .stat-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+
+    footer {
+      flex-direction: column;
+      text-align: center;
+      padding: 1.25rem 1rem;
+      gap: 0.75rem;
+    }
+
+    .footer-center { max-width: none; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-item:last-child {
+      grid-column: auto;
+    }
+
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card-meta { width: 100%; }
+
+    .system-card-title { padding-right: 0; margin-bottom: 0.35rem; }
+
+    .system-status-tag {
+      position: static;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+  }
+
+  @media (hover: hover) {
+    .topic-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="logo">Tark<span>Vtark</span></div>
+    <div class="nav-tag">Beta</div>
+  </div>
+  <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="Open menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <ul class="nav-links" id="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Issues</a></li>
+    <li><a onclick="showPage('how')" id="nav-how">How It Works</a></li>
+    <li><a onclick="showPage('about')" id="nav-about">Our Goal</a></li>
+    <li><a onclick="showPage('policy')" id="nav-policy">Policy</a></li>
+  </ul>
+</nav>
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
+
+<!-- MANIFESTO STRIP -->
+<div class="manifesto-strip">
+  <div class="manifesto-pill">No past debates</div>
+  <div class="manifesto-center">परिवर्तन ही स्थिर है &nbsp;·&nbsp; Change is the only constant</div>
+  <div class="manifesto-pill">No party blame</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker">
+    <span class="ticker-item">NEET UG 2026 Cancelled — CBI Probe Ordered</span>
+    <span class="ticker-item">Unemployment Rate Q1 2026 — 8.1%</span>
+    <span class="ticker-item">Air Quality Index Delhi — Severe (AQI 420)</span>
+    <span class="ticker-item">Farmer Debt Crisis — 3.2 Lakh Cr Outstanding</span>
+    <span class="ticker-item">परिवर्तन ही स्थिर है — Change is the only constant — TarkVtark</span>
+  </span>
+</div>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-label">// India's Present-Focused Civic Platform</div>
+      <h1>Forget the past.<br><em>Fix the present.</em><br>Own the future.</h1>
+      <p class="hero-desc">The only constant is change — and change starts now. Not in 1947. Not in 1984. Today. We look at what is broken right now, understand it with data, and find what can actually fix it.</p>
+      <div class="hero-cta">
+        <a class="cta-btn cta-tark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Tark%20%E2%80%94%20Topic%20suggestion">Share Your Tark →</a>
+        <a class="cta-btn cta-vitark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Vitark%20%E2%80%94%20Solution%20perspective">Share Your Vitark →</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Active Issues</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Sourced Content</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Party mentions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="section-header main-header-left">
+      <div class="section-title">Active Issues</div>
+    </div>
+    <div class="section-header main-header-right">
+      <div class="section-title">How Posts Are Made</div>
+    </div>
+
+    <div class="main-issues">
+      <!-- CARD 1 -->
+      <div class="topic-card urgent" onclick="openModal('neet')">
+        <div class="card-header">
+          <div class="card-meta">
+            <span class="tag urgent-tag">🔴 Urgent</span>
+            <span class="tag cat-tag">Education</span>
+          </div>
+          <div class="card-date">May 12, 2026</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">NEET UG 2026 Paper Leak — Exam Cancelled, 24L Students Affected</div>
+          <div class="card-summary">For the second consecutive year, India's largest medical entrance exam was compromised. The May 3 exam was cancelled on May 12 after central agencies confirmed irregularities. CBI probe ordered. Re-exam set for June 21, 2026.</div>
+          <div class="sources-row">
+            <span class="source-badge">NTA Official Notice</span>
+            <span class="source-badge">CBI Order</span>
+            <span class="source-badge">Supreme Court</span>
+            <span class="source-badge">FAIMA Petition</span>
+          </div>
+          <div class="impact-row">
+            <div class="impact-item">
+              <label>Students Affected</label>
+              <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">24,06,079</div>
+            </div>
+            <div class="impact-item">
+              <label>Solutions Available</label>
+              <div class="progress-bar"><div class="progress-fill green" style="width:80%"></div></div>
+              <div class="impact-val" style="color:var(--green)">CBT + Ind. Body</div>
+            </div>
+            <div class="impact-item">
+              <label>Urgency Level</label>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:100%"></div></div>
+              <div class="impact-val" style="color:var(--accent2)">Critical</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-left">
+            <span class="card-source-tag">NTA Notice</span>
+            <span class="card-source-tag">CBI Order</span>
+            <span class="card-source-tag">Supreme Court</span>
+          </div>
+          <button class="read-btn">Open Tark →</button>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="topic-card" onclick="openModal('unemployment')">
+        <div class="card-header">
+          <div class="card-meta">
+            <span class="tag cat-tag">Economy</span>
+          </div>
+          <div class="card-date">April 2026</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Youth Unemployment Crisis — 8.1% Rate, Degree-Skill Mismatch</div>
+          <div class="card-summary">India produces 1.5 crore graduates annually but adds limited quality jobs. The degree-skill gap is widening, with 65% of graduates reported unemployable by industry standards. CMIE data shows urban youth unemployment at 19.4%.</div>
+          <div class="sources-row">
+            <span class="source-badge">CMIE Data</span>
+            <span class="source-badge">RBI Report</span>
+            <span class="source-badge">NSSO Survey</span>
+          </div>
+          <div class="impact-row">
+            <div class="impact-item">
+              <label>Urban Youth Unemployed</label>
+              <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">19.4%</div>
+            </div>
+            <div class="impact-item">
+              <label>Graduates Employable</label>
+              <div class="progress-bar"><div class="progress-fill green" style="width:35%"></div></div>
+              <div class="impact-val" style="color:var(--accent2)">Only 35%</div>
+            </div>
+            <div class="impact-item">
+              <label>Policy Response</label>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:30%"></div></div>
+              <div class="impact-val" style="color:var(--accent2)">Partial</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-left">
+            <span class="card-source-tag">CMIE Data</span>
+            <span class="card-source-tag">RBI Report</span>
+            <span class="card-source-tag">NSSO Survey</span>
+          </div>
+          <button class="read-btn">Open Tark →</button>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="topic-card" onclick="openModal('air')">
+        <div class="card-header">
+          <div class="card-meta">
+            <span class="tag cat-tag">Environment</span>
+          </div>
+          <div class="card-date">May 2026</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Air Pollution Crisis — 14 of World's 20 Most Polluted Cities in India</div>
+          <div class="card-summary">India accounts for 14 of the world's 20 most polluted cities. Particulate matter levels in northern India exceed WHO safe limits by 10-15x. Estimated 1.6 million premature deaths annually linked to air quality. Policy enforcement remains fragmented across state lines.</div>
+          <div class="sources-row">
+            <span class="source-badge">CPCB Data</span>
+            <span class="source-badge">WHO Report</span>
+            <span class="source-badge">Lancet Study</span>
+          </div>
+          <div class="impact-row">
+            <div class="impact-item">
+              <label>Annual Deaths</label>
+              <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">16L / year</div>
+            </div>
+            <div class="impact-item">
+              <label>WHO Limit Exceedance</label>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:100%"></div></div>
+              <div class="impact-val" style="color:var(--accent2)">10-15x</div>
+            </div>
+            <div class="impact-item">
+              <label>Enforcement</label>
+              <div class="progress-bar"><div class="progress-fill green" style="width:20%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">Fragmented</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-left">
+            <span class="card-source-tag">CPCB Data</span>
+            <span class="card-source-tag">WHO Report</span>
+            <span class="card-source-tag">Lancet Study</span>
+          </div>
+          <button class="read-btn">Open Tark →</button>
+        </div>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="topic-card" onclick="openModal('judiciary')">
+        <div class="card-header">
+          <div class="card-meta">
+            <span class="tag cat-tag">Justice System</span>
+          </div>
+          <div class="card-date">March 2026</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Judicial Backlog — 5 Crore Pending Cases, Average Wait 15 Years</div>
+          <div class="card-summary">India's judiciary has over 5 crore pending cases. Average time to resolve a civil dispute is 15+ years. 3.5 crore cases are in District Courts alone. Vacancy rate across all courts stands at 25%. Justice delayed is effectively justice denied for millions.</div>
+          <div class="sources-row">
+            <span class="source-badge">Supreme Court Report</span>
+            <span class="source-badge">Law Commission</span>
+            <span class="source-badge">DAKSH Data</span>
+          </div>
+          <div class="impact-row">
+            <div class="impact-item">
+              <label>Pending Cases</label>
+              <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">5 Crore+</div>
+            </div>
+            <div class="impact-item">
+              <label>Avg Wait Time</label>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:85%"></div></div>
+              <div class="impact-val" style="color:var(--accent2)">15+ Years</div>
+            </div>
+            <div class="impact-item">
+              <label>Judge Vacancy</label>
+              <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+              <div class="impact-val" style="color:var(--accent)">25%</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-footer-left">
+            <span class="card-source-tag">SC Report</span>
+            <span class="card-source-tag">Law Commission</span>
+            <span class="card-source-tag">DAKSH Data</span>
+          </div>
+          <button class="read-btn">Open Tark →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="flow-block">
+        <div class="flow-mobile-header">
+          <div class="section-title">How Posts Are Made</div>
+        </div>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-dot active">1</div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">
+              <strong>Topic Identified</strong>
+              <span>Current, verifiable, systemic issue only</span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-dot active">2</div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">
+              <strong>AI Research</strong>
+              <span>Pulls govt data, court orders, official reports</span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-dot active">3</div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">
+              <strong>Human Review</strong>
+              <span>Every stat and source is fact-checked</span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-dot active">4</div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">
+              <strong>Structured & Published</strong>
+              <span>Issue → System → Problem → Solution</span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-dot">5</div>
+            </div>
+            <div class="flow-text">
+              <strong>Public Archive</strong>
+              <span>All versions saved. Corrections noted publicly.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="share-cta-banner">
+    <div class="share-cta">
+      <div class="share-cta-label">// Your Turn</div>
+      <h3>Share Your Tark. Share Your Vitark.</h3>
+      <p>See a present-day issue worth documenting? That's your <strong style="color:var(--paper);">Tark</strong>. Have a solution perspective or ground-level experience? That's your <strong style="color:var(--paper);">Vitark</strong>. We read every message and welcome your feedback.</p>
+      <div class="share-cta-actions">
+        <a class="cta-btn cta-tark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Tark%20%E2%80%94%20Topic%20suggestion">Share Your Tark →</a>
+        <a class="cta-btn cta-vitark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Vitark%20%E2%80%94%20Solution%20perspective">Share Your Vitark →</a>
+      </div>
+      <div class="share-cta-note"><a href="mailto:tarkvtark@proton.me">tarkvtark@proton.me</a> · Social media accounts pending</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS PAGE -->
+<div id="page-how" class="page">
+  <div class="about-page">
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem;">// How TarkVtark Works</div>
+    <h2>From Issue to Solution</h2>
+    <p>TarkVtark is not a news feed or a debate forum. Every issue is documented with verified data, explained clearly, and paired with realistic solutions — so you understand what is broken and what can actually fix it.</p>
+
+    <div class="tark-vitark-grid">
+      <div class="tv-card tark-card">
+        <h3>Tark — The Fact</h3>
+        <p>What is happening right now. Current data, official sources, and how the system failed. No opinions dressed as facts. Every claim is sourced.</p>
+      </div>
+      <div class="tv-card vitark-card">
+        <h3>Vitark — The Solutions</h3>
+        <p>What can realistically change it. Each solution names who is responsible, how long it takes, what can go wrong, and how to prevent it from breaking again.</p>
+      </div>
+    </div>
+
+    <div class="share-cta" style="margin:1.5rem 0;">
+      <div class="share-cta-label">// Contribute</div>
+      <h3>Share Your Tark. Share Your Vitark.</h3>
+      <p>Send us a topic you think needs a Tark post, or a Vitark solution you believe would work. Your perspective shapes what we cover next.</p>
+      <div class="share-cta-actions">
+        <a class="cta-btn cta-tark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Tark%20%E2%80%94%20Topic%20suggestion">Share Your Tark →</a>
+        <a class="cta-btn cta-vitark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Vitark%20%E2%80%94%20Solution%20perspective">Share Your Vitark →</a>
+      </div>
+      <div class="share-cta-note"><a href="mailto:tarkvtark@proton.me">tarkvtark@proton.me</a> · Feedback welcome</div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.75rem;">// How Every Post Is Made</div>
+    <div class="flow-block">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-left">
+            <div class="flow-dot active">1</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text">
+            <strong>Topic Identified</strong>
+            <span>Current, verifiable, systemic issue — not historical debate</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-left">
+            <div class="flow-dot active">2</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text">
+            <strong>Research</strong>
+            <span>Government data, court orders, official reports, and verified statistics</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-left">
+            <div class="flow-dot active">3</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text">
+            <strong>Fact-Check</strong>
+            <span>Every stat and source is reviewed before publishing</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-left">
+            <div class="flow-dot active">4</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text">
+            <strong>Structured & Published</strong>
+            <span>Issue → System → Problem → Solution</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-left">
+            <div class="flow-dot active">5</div>
+          </div>
+          <div class="flow-text">
+            <strong>Corrections Preserved</strong>
+            <span>If we make an error, the correction is noted and the original is kept</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.5rem;">// What We Allow & What We Don't</div>
+    <ul class="principle-list">
+      <li data-n="✓">Current facts with verified sources</li>
+      <li data-n="✓">Actionable solution suggestions with clear responsibility</li>
+      <li data-n="✓">Ground-level personal experience</li>
+      <li data-n="✗">Party names or political targeting</li>
+      <li data-n="✗">Debates, blame, or historical arguments</li>
+      <li data-n="✗">Abusive language or personal attacks</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="page-about" class="page">
+  <div class="about-page">
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem;">// Our Goal</div>
+    <h2>Why TarkVtark Exists</h2>
+    <p style="font-family:var(--sans);font-size:1.15rem;font-weight:600;line-height:1.5;color:var(--ink);border-left:4px solid var(--accent);padding-left:1rem;margin-bottom:1.25rem;">"परिवर्तन ही स्थिर है."<br><span style="font-size:0.85rem;font-weight:400;color:var(--muted);">Change is the only constant.</span></p>
+    <p>The past is studied. The present is lived. TarkVtark exists for the present. Not to relitigate what happened in 1947 or 1984 or 2002. Those conversations exist everywhere. This one doesn't.</p>
+    <p>We focus on what is broken <em>today</em> — with today's data, today's systems, and today's solutions. Because the present is the only moment where action is actually possible. Secure the present. The future builds itself.</p>
+    <p>This is not a news site. Not a debate forum. Not a political platform. It is a structured, sourced record of current reality — and what can realistically change it.</p>
+
+    <p style="font-family:var(--sans);font-size:1.05rem;font-weight:600;line-height:1.6;color:var(--ink);border-left:4px solid var(--accent);padding-left:1rem;margin:1.5rem 0;"><strong>We believe in our brilliant minds.</strong> India has more capability than it is often given credit for — and we can change what is broken today. <strong>We believe in our youth.</strong> Not as a slogan, but as the generation that will read the facts, reason through solutions, and build the present this country actually needs.</p>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.5rem;">// Our Principles</div>
+    <ul class="principle-list">
+      <li data-n="01">Every claim requires a verifiable source. No exceptions. No unsourced opinions presented as fact.</li>
+      <li data-n="02">No party names. No politician names. We discuss systems and policies, not people.</li>
+      <li data-n="03">Solutions must be actionable and identify who is responsible for implementing them.</li>
+      <li data-n="04">Mistakes are corrected publicly. Original content is preserved. Nothing is quietly deleted.</li>
+      <li data-n="05">We accept no advertising. No political funding. No corporate sponsorship.</li>
+      <li data-n="06">Vitark is yours — your solution perspective is the deliberation. That is the whole model.</li>
+    </ul>
+
+    <div style="background:var(--ink);color:var(--paper);padding:1.5rem;margin-top:1.5rem;">
+      <div style="font-family:var(--mono);font-size:0.62rem;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem;">// Phase Roadmap</div>
+      <div style="font-size:0.82rem;line-height:1.8;">
+        <div style="margin-bottom:0.4rem;"><span style="font-family:var(--mono);color:#888;font-size:0.68rem;">Phase 1 (Now) →</span> Curated Tark posts. Public reads. No accounts.</div>
+        <div style="margin-bottom:0.4rem;"><span style="font-family:var(--mono);color:#888;font-size:0.68rem;">Phase 2 →</span> Social media accounts (pending). Collect user thoughts on active issues. Start the conversation.</div>
+        <div style="margin-bottom:0.4rem;"><span style="font-family:var(--mono);color:#888;font-size:0.68rem;">Phase 3 →</span> Verified accounts. Users share perspectives. Simulate how ideas would work inside the current system.</div>
+        <div style="margin-bottom:0.4rem;"><span style="font-family:var(--mono);color:#888;font-size:0.68rem;">Phase 4 →</span> Recognize contributors. Highlight brilliant ideas — who proposed it, how it works, why it matters.</div>
+        <div style="margin-bottom:0.4rem;"><span style="font-family:var(--mono);color:#888;font-size:0.68rem;">Phase 5 →</span> Best community solutions reviewed and added to TarkVtark. Solutions board. Formal petitions to relevant authorities.</div>
+        <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid #333;font-size:0.78rem;line-height:1.7;color:#aaa;">
+          <span style="font-family:var(--mono);color:var(--accent2);font-size:0.68rem;">* Open always →</span> We also accept suggestions for the platform itself — new features, ideas, or anything you think TarkVtark should do. If users suggest something worth building, we review it, think it through, and add what fits. Write to us at <a href="mailto:tarkvtark@proton.me" style="color:var(--accent2);text-decoration:none;border-bottom:1px solid var(--accent2);">tarkvtark@proton.me</a>.
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:2rem 0 0.5rem;">// Contact &amp; Feedback</div>
+    <p>We want your feedback. If you have a topic worth covering, a solution perspective, or a suggestion for how TarkVtark should work — we read every message and welcome it.</p>
+    <div class="share-cta" style="margin-top:1rem;">
+      <div class="share-cta-label">// Send Us Yours</div>
+      <h3>Share Your Tark. Share Your Vitark.</h3>
+      <p><strong style="color:var(--paper);">Tark</strong> — a present-day issue with sources you want us to investigate.<br><strong style="color:var(--paper);">Vitark</strong> — your solution idea, ground experience, or fix that could actually work.</p>
+      <div class="share-cta-actions">
+        <a class="cta-btn cta-tark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Tark%20%E2%80%94%20Topic%20suggestion">Share Your Tark →</a>
+        <a class="cta-btn cta-vitark" href="mailto:tarkvtark@proton.me?subject=Share%20my%20Vitark%20%E2%80%94%20Solution%20perspective">Share Your Vitark →</a>
+      </div>
+      <div class="share-cta-note"><a href="mailto:tarkvtark@proton.me">tarkvtark@proton.me</a> · Social media accounts pending · Phase 2</div>
+    </div>
+  </div>
+</div>
+
+<!-- POLICY PAGE -->
+<div id="page-policy" class="page">
+  <div class="about-page">
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem;">// Policy</div>
+    <h2>How We Use AI — Honestly</h2>
+    <p>TarkVtark is built with AI tools. Our content is researched and written with AI assistance. We are open about that. This page explains exactly what that means — and what it does not mean.</p>
+
+    <div class="policy-note">
+      <strong>We do not write blindly.</strong> AI helps us research, structure, and express — but every issue is grounded in verifiable sources. Facts are checked. Errors are corrected publicly.
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.5rem;">// What AI Helps Us Do</div>
+    <ul class="principle-list">
+      <li data-n="01">Build and design this website using AI development tools</li>
+      <li data-n="02">Research government data, court orders, reports, and official statistics</li>
+      <li data-n="03">Structure complex issues into clear Tark format — fact, system, problem, solution</li>
+      <li data-n="04">Express content in proper, readable language instead of raw unpolished drafts</li>
+      <li data-n="05">Review and refine wording so ideas are clear — not to change the facts behind them</li>
+    </ul>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.5rem;">// What AI Does Not Do</div>
+    <ul class="principle-list">
+      <li data-n="✗">Invent statistics or sources that do not exist</li>
+      <li data-n="✗">Replace human fact-checking on claims that matter</li>
+      <li data-n="✗">Publish without identifying verifiable sources on every Tark post</li>
+      <li data-n="✗">Quietly edit or hide mistakes — corrections are made transparently</li>
+    </ul>
+
+    <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:1.5rem 0 0.5rem;">// Errors & Transparency</div>
+    <p>If we get something wrong, we correct it openly. The original version is preserved. The correction is noted. We do not pretend AI-generated or AI-assisted content is immune to error — we assume it can be wrong, and we build accountability around that.</p>
+    <p>AI helps us write better. It does not remove our responsibility to be accurate, sourced, and honest about how this platform is made.</p>
+
+    <div class="policy-note">
+      <strong>In short:</strong> AI is our tool for research and expression — not our excuse. Tark posts stay sourced. Mistakes stay visible. We polish the writing so you can read it clearly. We never polish away the truth.
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-topbar">
+      <span id="modal-category">Education / Examination System</span>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>TarkVtark © 2026 — Present. Reasoned. Changed.</div>
+  <div class="footer-center">
+    <a class="footer-link" onclick="showPage('policy')">Policy</a>
+    ·
+    <a class="footer-email" href="mailto:tarkvtark@proton.me">tarkvtark@proton.me</a>
+    <div style="margin-top:0.35rem;color:var(--muted);">Feedback welcome · Social media pending</div>
+  </div>
+  <div>Phase 1 — Read Only</div>
+</footer>
+
+<script>
+const modals = {
+  neet: {
+    category: "Education / Examination Integrity",
+    title: "NEET UG 2026 Paper Leak — Exam Cancelled, 24 Lakh Students Affected",
+    date: "May 12, 2026",
+    urgent: true,
+    tark: {
+      what: "NEET UG 2026 was held on May 3, 2026. On May 12, NTA officially cancelled it after central agencies confirmed paper leak. Guess papers circulated before the exam matched actual questions. This is the <strong>second consecutive year</strong> of a major NEET breach. 24,06,079 students are affected. Re-exam confirmed for June 21, 2026. CBI probe ordered.",
+      stats: [
+        { num: "24L+", label: "Students Affected" },
+        { num: "2nd Yr", label: "Consecutive Breach" },
+        { num: "Jun 21", label: "Re-Exam Date" },
+        { num: "CBI", label: "Probe Ordered" },
+        { num: "40+", label: "Arrested (2024)" },
+        { num: "SC", label: "Petition Filed" }
+      ],
+      systemFlow: [
+        { n: 1, title: "NTA creates exam paper", status: "ok" },
+        { n: 2, title: "Printed at secured facilities", status: "ok" },
+        { n: 3, title: "Handed to private contractors", status: "fail", sub: "No GPS tracking · No chain-of-custody" },
+        { n: 4, title: "Stored at local collection points", status: "fail", sub: "Overnight · Unmonitored storage" },
+        { n: 5, title: "Distributed to exam centers", status: "warn", sub: "Morning of exam day" }
+      ],
+      flowNote: "The failure happens at the <strong>private contractor storage stage</strong>. Zero real-time tracking. No government oversight. No accountability when integrity is compromised. This exact gap existed in 2024 and was not fixed.",
+      sources: ["NTA Official Notice — May 12, 2026", "CBI Probe Order — May 2026", "FAIMA Supreme Court Petition — May 2026", "NTA Press Release — May 10, 2026"]
+    },
+    vitark: [
+      {
+        fix: "Move NEET to Computer Based Test (CBT)",
+        fixDetail: "No physical paper means no physical leak. JEE Advanced already runs on CBT successfully. The technology and infrastructure exist today.",
+        who: "NTA + Ministry of Education",
+        timeline: "12-18 months for full transition",
+        risk: "Server infrastructure at remote centers needs upgrade. Power backup mandatory. Rural center connectivity is uneven.",
+        riskLevel: 3,
+        canBreakAgain: "Yes — digital systems can be hacked, but the attack surface is far smaller and detectable in real-time. Server logs are permanent and tamper-evident.",
+        prevention: "End-to-end encrypted question delivery. Paper unlocks only at exam terminal via biometric + OTP at exact exam time. No human handles the paper.",
+        riskScore: 2
+      },
+      {
+        fix: "Ban Private Contractors from Paper Logistics Entirely",
+        fixDetail: "Government employees only for all paper movement. Full chain-of-custody documentation at every handover point with GPS tracking.",
+        who: "NTA — policy change only, no Parliament needed",
+        timeline: "Can apply from next exam cycle",
+        risk: "Government logistics can be slower. Employees can also be bribed — but accountability is clearer.",
+        riskLevel: 2,
+        canBreakAgain: "Yes — government employees can also be corrupt. But a government employee faces criminal service charges. A contractor simply disappears.",
+        prevention: "Mandatory body cameras on all logistics personnel. GPS-tracked sealed vans with live monitoring dashboard accessible to NTA leadership.",
+        riskScore: 3
+      },
+      {
+        fix: "Establish an Independent Examination Authority",
+        fixDetail: "Fully autonomous from Ministry — like the Election Commission. Own budget, own accountability, own appointment process through Parliament.",
+        who: "Parliament — requires new legislation",
+        timeline: "2-3 years",
+        risk: "Political resistance to giving up Ministry control. Initial setup period is structurally weak.",
+        riskLevel: 2,
+        canBreakAgain: "Harder to break than current system. Independence means Ministry cannot interfere. But the authority itself can be captured over time if appointments are not transparent.",
+        prevention: "Appointments approved by Parliamentary committee, not Ministry. Annual public audit mandatory. Budget guaranteed by statute.",
+        riskScore: 2
+      }
+    ]
+  },
+  unemployment: {
+    category: "Economy / Labour Policy",
+    title: "Youth Unemployment Crisis — Degree Without Skill, Scale Without Jobs",
+    date: "April 2026",
+    urgent: false,
+    tark: {
+      what: "India produces <strong>1.5 crore graduates annually</strong> but the economy does not absorb them at equivalent quality. Urban youth unemployment stands at 19.4% per CMIE Q1 2026. 65% of graduates are not directly employable per industry surveys. The education system and labour market are structurally misaligned and the gap is growing.",
+      stats: [
+        { num: "19.4%", label: "Urban Youth Unemployed" },
+        { num: "1.5Cr", label: "Annual Graduates" },
+        { num: "65%", label: "Not Employable Directly" },
+        { num: "8.1%", label: "Overall Rate" },
+        { num: "45%", label: "Informal Sector Jobs" },
+        { num: "18mo", label: "Industry Skill Cycle" }
+      ],
+      systemFlow: [
+        { n: 1, title: "Universities set curriculum", status: "warn", sub: "Revised every 5–7 years" },
+        { n: 2, title: "Students graduate with degrees", status: "ok" },
+        { n: 3, title: "Industry skill needs shift", status: "fail", sub: "Changes every 18–24 months" },
+        { n: 4, title: "Employers screen candidates", status: "fail", sub: "65% not directly employable" },
+        { n: 5, title: "Apprenticeship schemes (NAPS)", status: "warn", sub: "Exist but far below capacity" }
+      ],
+      flowNote: "<strong>The gap is structural and permanent</strong> unless the system changes. Most colleges have no live industry partnerships. MSME sector employs 11 crore people but faces hiring risk for unproven graduates.",
+      sources: ["CMIE Employment Outlook Q1 2026", "RBI Annual Report 2025-26", "NASSCOM Skills Report 2025", "Ministry of Labour EPFO Data 2026"]
+    },
+    vitark: [
+      {
+        fix: "Mandatory 6-Month Industry Apprenticeship in All UG Degrees",
+        fixDetail: "Embedded in the degree, not optional. Jointly funded by industry and government. Student gets academic credit plus stipend. Industry gets trained candidate.",
+        who: "Ministry of Education + Ministry of Labour joint notification",
+        timeline: "Pilot in 100 colleges possible within 1 year",
+        risk: "Industries may treat apprentices as cheap labour without real training. Small industries cannot absorb large volumes.",
+        riskLevel: 3,
+        canBreakAgain: "Yes — without quality monitoring this becomes a box-ticking exercise. Paper apprenticeships already exist in some schemes.",
+        prevention: "Apprenticeship quality audit by third party. Student feedback mandatory. Companies with poor ratings lose the associated tax benefit.",
+        riskScore: 3
+      },
+      {
+        fix: "Link University Funding to Graduate Employment Outcomes",
+        fixDetail: "20% of university grants tied to 1-year employment rate of graduates. Forces universities to actually care about what happens after graduation.",
+        who: "UGC policy change — no Parliament needed",
+        timeline: "One academic cycle",
+        risk: "Universities game the metric — push students into any job including unrelated ones just to show numbers.",
+        riskLevel: 4,
+        canBreakAgain: "Yes — metric manipulation is the most likely failure mode. Needs quality measure not just quantity.",
+        prevention: "Employment must be in relevant field above minimum wage to count. Audited by independent agency annually.",
+        riskScore: 3
+      },
+      {
+        fix: "National Skills Passport — Portable Verified Credential",
+        fixDetail: "Government-issued digital record of verified skills beyond degree. Accepted by employers. Updated as skills are acquired. Reduces dependency on degree name alone.",
+        who: "NSDC + DigiLocker integration — infrastructure already exists",
+        timeline: "18 months for full rollout",
+        risk: "Employers may not trust or adopt it without incentive. Smaller businesses unaware of the system.",
+        riskLevel: 2,
+        canBreakAgain: "Low recurrence risk — once adopted it is self-sustaining. Main risk is initial non-adoption.",
+        prevention: "PSU hiring mandates Skills Passport check alongside degree. Creates immediate adoption pressure on private sector.",
+        riskScore: 1
+      }
+    ]
+  },
+  air: {
+    category: "Environment / Public Health",
+    title: "Air Pollution — 14 of World's 20 Most Polluted Cities Are Indian",
+    date: "May 2026",
+    urgent: false,
+    tark: {
+      what: "India accounts for <strong>14 of the world's 20 most polluted cities</strong> by PM2.5 annual average. Northern India regularly exceeds WHO safe limits by 10-15x during winter. The Lancet estimates 1.6 million premature deaths annually. Economically, air pollution costs India approximately &#8377;2.6 lakh crore per year in productivity and healthcare.",
+      stats: [
+        { num: "14/20", label: "Most Polluted Cities" },
+        { num: "1.6M", label: "Annual Deaths" },
+        { num: "15x", label: "WHO Limit Exceedance" },
+        { num: "2.6LCr", label: "Economic Loss/Yr" },
+        { num: "40%", label: "From Vehicles" },
+        { num: "25%", label: "From Industry" }
+      ],
+      systemFlow: [
+        { n: 1, title: "CPCB sets national air standards", status: "ok" },
+        { n: 2, title: "State PCBs enforce locally", status: "fail", sub: "Varies from functional to absent" },
+        { n: 3, title: "Stubble burning bans (Punjab/Haryana)", status: "warn", sub: "Poor compliance · No affordable alternative" },
+        { n: 4, title: "Vehicle emission checks", status: "warn", sub: "Inconsistent enforcement" },
+        { n: 5, title: "Industrial violations penalized", status: "fail", sub: "Legal challenges delay closure for years" }
+      ],
+      flowNote: "<strong>Enforcement is entirely state-dependent.</strong> Northern India exceeds WHO limits by 10–15x during winter. Policy exists on paper — execution is fragmented across state lines.",
+      sources: ["CPCB Annual Air Quality Report 2025-26", "WHO Global Air Quality Database 2025", "Lancet Planetary Health India Study 2025", "IQAir World Air Quality Report 2025"]
+    },
+    vitark: [
+      {
+        fix: "Unified National Air Quality Enforcement Agency",
+        fixDetail: "Cross-state authority with real enforcement powers — can override state PCBs, issue closure orders, levy automatic penalties. Modeled on how SEBI operates across states for financial markets.",
+        who: "Parliament legislation + MoEF — needs new Act",
+        timeline: "2-3 years for legislation",
+        risk: "States will resist central override of their jurisdiction. Federalism tension is significant.",
+        riskLevel: 4,
+        canBreakAgain: "Yes — agency can be captured or de-funded over time. Needs statutory independence with guaranteed budget.",
+        prevention: "Agency budget guaranteed by statute not annual allocation. Head appointed by Parliamentary committee not Ministry.",
+        riskScore: 2
+      },
+      {
+        fix: "Direct Stubble Management Machinery Subsidy to Farmers",
+        fixDetail: "Remove the economic reason for burning — do not just ban it. Happy Seeder machinery subsidized at 90% for farmers with under 5 acres. District-level distribution.",
+        who: "Agriculture Ministry + Punjab and Haryana state governments",
+        timeline: "One crop cycle — 6 months",
+        risk: "Supply chain for machinery cannot meet sudden demand. Farmers may sell subsidized machinery.",
+        riskLevel: 2,
+        canBreakAgain: "Low — once machinery is in the field and farmers see it works, adoption sustains. But subsidy must continue for new farmers entering.",
+        prevention: "Machinery registered to farm land not individual — cannot be sold separately. Annual verification by agriculture officer.",
+        riskScore: 1
+      },
+      {
+        fix: "Mandatory Real-Time Industrial Emission Monitoring",
+        fixDetail: "All major industrial units in high-pollution districts fitted with continuous emission monitoring systems. Data fed directly to CPCB dashboard. Automatic penalty triggers — no human discretion.",
+        who: "CPCB + State PCBs — technology exists and already mandated for some units, needs expansion",
+        timeline: "Existing mandate can be enforced immediately for large units",
+        risk: "Industries tamper with sensors. Data manipulation is already documented in the existing partial scheme.",
+        riskLevel: 3,
+        canBreakAgain: "Yes — sensor tampering is documented. Human discretion re-enters when penalties are challenged in court.",
+        prevention: "Government-installed and sealed sensors — industry has no access. Random physical verification quarterly by CPCB team.",
+        riskScore: 2
+      }
+    ]
+  },
+  judiciary: {
+    category: "Justice System / Institutional Reform",
+    title: "Judicial Backlog — 5 Crore Cases, Average Civil Dispute Takes 15 Years",
+    date: "March 2026",
+    urgent: false,
+    tark: {
+      what: "India's judiciary has <strong>over 5 crore pending cases</strong>. District courts alone hold 3.5 crore. Average civil case resolution exceeds 15 years. Judge vacancy across all courts is 25%. For ordinary citizens, the justice system is functionally inaccessible — filing a case means choosing to spend 15 years waiting.",
+      stats: [
+        { num: "5Cr+", label: "Pending Cases" },
+        { num: "15 Yrs", label: "Avg Civil Case" },
+        { num: "25%", label: "Judge Vacancy" },
+        { num: "3.5Cr", label: "In District Courts" },
+        { num: "20K", label: "Judges Available" },
+        { num: "70K", label: "Judges Needed" }
+      ],
+      systemFlow: [
+        { n: 1, title: "Case filed in court", status: "ok" },
+        { n: 2, title: "Assigned to overloaded bench", status: "warn", sub: "25% judge vacancy nationwide" },
+        { n: 3, title: "Hearings & adjournments", status: "fail", sub: "Avg 20–30 adjournments per case" },
+        { n: 4, title: "Judgment delivered", status: "fail", sub: "15+ years for civil disputes" },
+        { n: 5, title: "Judge appointments (collegium)", status: "fail", sub: "Vacancies unfilled 2–3 years routinely" }
+      ],
+      flowNote: "Cases proceed at the pace of the slowest element — adjournments, paperwork, party availability. No case management system at most district courts. The <strong>collegium system</strong> has no fixed appointment timeline.",
+      sources: ["Supreme Court of India Annual Report 2025-26", "Law Commission Report on Judicial Reforms", "DAKSH Courts Data Project 2026", "e-Courts Mission Mode Project Status Report"]
+    },
+    vitark: [
+      {
+        fix: "Mandatory 60-Day Judicial Appointment Timeline",
+        fixDetail: "From vacancy announcement to appointment — 60 days maximum with automatic escalation to Supreme Court if missed. Currently vacancies sit for 2-3 years with no accountability.",
+        who: "Supreme Court + Law Ministry MOU — no Parliament needed",
+        timeline: "Can be implemented by Supreme Court administrative order",
+        risk: "Rushing appointments may reduce quality. Collegium may resist fixed timelines as interference with judicial independence.",
+        riskLevel: 3,
+        canBreakAgain: "Yes — administrative orders can be quietly abandoned. Needs statutory backing eventually.",
+        prevention: "Vacancy and appointment status published on public dashboard. Any delay triggers automatic public report to Parliament.",
+        riskScore: 2
+      },
+      {
+        fix: "Mandatory Pre-Litigation Mediation for Civil Disputes Under 50L",
+        fixDetail: "Before filing in court, parties must attempt structured mediation for 45 days. Pilots in commercial disputes show 35-40% resolution without court entry.",
+        who: "Parliament amendment to Code of Civil Procedure",
+        timeline: "Legislation 1 year, implementation 6 months",
+        risk: "Power imbalance — stronger party delays mediation to force weaker party into a bad settlement.",
+        riskLevel: 3,
+        canBreakAgain: "Yes — if mediators are not trained and neutral, this becomes another delay layer rather than a solution.",
+        prevention: "Certified mediators with annual performance audit. Mediation outcome can be appealed to court within 30 days.",
+        riskScore: 2
+      },
+      {
+        fix: "Sunset Clause on Cases Pending Over 10 Years",
+        fixDetail: "Any civil case pending over 10 years gets mandatory expedited scheduling — concluded within 90 days or archived with explanation. Clears historical backlog systematically.",
+        who: "Supreme Court administrative order — can be issued immediately",
+        timeline: "90-day implementation window",
+        risk: "Old cases may have legitimate reasons for delay — missing parties, complex evidence. Rushed conclusion may produce flawed judgments.",
+        riskLevel: 4,
+        canBreakAgain: "The backlog rebuilds if case filing rate is not reduced simultaneously. Clearing old cases while new ones pile in at the same rate is a treadmill.",
+        prevention: "Sunset applies only to cases where both parties are traceable. Evidence summary compiled before expedited hearing. Must be combined with mediation reform to reduce inflow.",
+        riskScore: 3
+      }
+    ]
+  }
+};
+
+function riskDots(score, max, colorClass) {
+  var dots = "";
+  for (var i = 1; i <= max; i++) {
+    var cls = i <= score ? "risk-dot filled " + colorClass : "risk-dot";
+    dots += '<div class="' + cls + '"></div>';
+  }
+  return dots;
+}
+
+function systemStatusLabel(status) {
+  if (status === "fail") return "Breaks here";
+  if (status === "warn") return "Weak point";
+  return "Working";
+}
+
+function buildSystemFlow(tark) {
+  if (!tark.systemFlow) {
+    return '<div class="modal-text">' + (tark.how || "") + '</div>';
+  }
+
+  var html = '<div class="system-legend">'
+    + '<span><i class="ok"></i> Working</span>'
+    + '<span><i class="warn"></i> Weak point</span>'
+    + '<span><i class="fail"></i> Breaks here</span>'
+    + '</div><div class="system-flow">';
+
+  tark.systemFlow.forEach(function(step, i) {
+    var isLast = i === tark.systemFlow.length - 1;
+    html += '<div class="system-step">'
+      + '<div class="system-step-left">'
+      + '<div class="system-node ' + step.status + '">' + step.n + '</div>'
+      + (isLast ? '' : '<div class="system-line"></div>')
+      + '</div>'
+      + '<div class="system-card ' + step.status + '">'
+      + '<div class="system-card-title">' + step.title + '</div>'
+      + (step.sub ? '<div class="system-card-sub">' + step.sub + '</div>' : '')
+      + '<span class="system-status-tag ' + step.status + '">' + systemStatusLabel(step.status) + '</span>'
+      + '</div></div>';
+  });
+
+  html += '</div>';
+
+  if (tark.flowNote) {
+    html += '<div class="system-failure-box">' + tark.flowNote + '</div>';
+  }
+
+  return html;
+}
+
+function buildTarkTab(data) {
+  var statsHtml = '<div class="stat-grid">';
+  data.tark.stats.forEach(function(s) {
+    statsHtml += '<div class="stat-box"><div class="stat-box-num">' + s.num + '</div><div class="stat-box-label">' + s.label + '</div></div>';
+  });
+  statsHtml += '</div>';
+
+  var sourcesHtml = data.tark.sources.map(function(s) {
+    return '<div style="font-family:var(--mono);font-size:0.68rem;padding:0.4rem 0;border-bottom:1px solid var(--border);color:#444;">&#x1F4CE; ' + s + '</div>';
+  }).join('');
+
+  return '<div class="tark-label is-tark">&#9670; Tark &mdash; The Issue</div>'
+    + '<div class="modal-section"><div class="modal-section-label">What Is Happening Right Now</div>'
+    + '<div class="modal-text">' + data.tark.what + '</div></div>'
+    + '<div class="modal-section"><div class="modal-section-label">Key Numbers</div>' + statsHtml + '</div>'
+    + '<div class="modal-section"><div class="modal-section-label">How The System Currently Works</div>'
+    + buildSystemFlow(data.tark) + '</div>'
+    + '<div class="modal-section" style="border-bottom:none;"><div class="modal-section-label">Sources Used In This Tark</div>'
+    + sourcesHtml + '</div>';
+}
+
+function buildVitarkTab(data) {
+  var html = '<div class="tark-label is-vitark">&#9670; Vitark &mdash; Solutions &amp; What Could Still Break</div>';
+
+  data.vitark.forEach(function(v, i) {
+    html += '<div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--border);">'
+      + '<div style="font-family:var(--sans);font-size:1rem;font-weight:700;margin-bottom:0.25rem;">V' + (i+1) + '. ' + v.fix + '</div>'
+      + '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6;">' + v.fixDetail + '</div>'
+      + '<div class="vitark-flow">'
+
+      + '<div class="vitark-step">'
+      + '<div class="vitark-step-left"><div class="vitark-node fix">FIX</div><div class="vitark-line"></div></div>'
+      + '<div class="vitark-card" style="margin-bottom:0.75rem;"><div class="vitark-card-title">The Solution</div><div class="vitark-card-sub">' + v.fixDetail + '</div></div>'
+      + '</div>'
+
+      + '<div class="vitark-step">'
+      + '<div class="vitark-step-left"><div class="vitark-node who">WHO</div><div class="vitark-line"></div></div>'
+      + '<div class="vitark-card who-card" style="margin-bottom:0.75rem;"><div class="vitark-card-title">Who Implements It</div><div class="vitark-card-sub"><strong>' + v.who + '</strong><br>Timeline: ' + v.timeline + '</div></div>'
+      + '</div>'
+
+      + '<div class="vitark-step">'
+      + '<div class="vitark-step-left"><div class="vitark-node risk">RISK</div><div class="vitark-line"></div></div>'
+      + '<div class="vitark-card risk-card" style="margin-bottom:0.75rem;"><div class="vitark-card-title">Where This Could Still Break</div><div class="vitark-card-sub">' + v.risk + '</div>'
+      + '<div class="risk-meter" style="margin-top:0.5rem;"><div class="risk-dots">' + riskDots(v.riskLevel, 5, "") + '</div><div class="risk-label">Break Risk</div></div>'
+      + '</div></div>'
+
+      + '<div class="vitark-step">'
+      + '<div class="vitark-step-left"><div class="vitark-node risk">LOOP</div><div class="vitark-line"></div></div>'
+      + '<div class="vitark-card risk-card" style="margin-bottom:0.75rem;"><div class="vitark-card-title">Can This Happen Again?</div><div class="vitark-card-sub">' + v.canBreakAgain + '</div></div>'
+      + '</div>'
+
+      + '<div class="vitark-step">'
+      + '<div class="vitark-step-left"><div class="vitark-node check">LOCK</div></div>'
+      + '<div class="vitark-card check-card" style="margin-bottom:0;"><div class="vitark-card-title">Prevention Lock &mdash; How To Make It Stick</div><div class="vitark-card-sub">' + v.prevention + '</div>'
+      + '<div class="risk-meter" style="margin-top:0.5rem;"><div class="risk-dots">' + riskDots(v.riskScore, 5, "green") + '</div><div class="risk-label">Prevention Strength</div></div>'
+      + '</div></div>'
+
+      + '</div></div>';
+  });
+
+  html += '<div style="background:var(--ink);color:var(--paper);padding:1rem;font-size:0.78rem;line-height:1.7;">'
+    + '<strong style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);">Note on Certainty</strong><br>'
+    + 'No solution is permanent. Every system can be gamed, corrupted, or abandoned over time. The goal is not a perfect fix &mdash; it is a better system that is <strong>harder to break</strong> and <strong>easier to detect when breaking</strong>. The prevention locks above are not guarantees. They are friction points that make failure costly and visible.'
+    + '</div>';
+
+  return html;
+}
+
+function openModal(id) {
+  var data = modals[id];
+  document.getElementById("modal-category").textContent = data.category;
+
+  var urgent = data.urgent ? '<span class="tag urgent-tag">&#x1F534; Urgent</span>' : "";
+  var headerHtml = '<div class="modal-tag-row">' + urgent + '<span class="tag cat-tag">' + data.date + '</span></div>'
+    + '<div class="modal-title">' + data.title + '</div>'
+    + '<div class="modal-tabs">'
+    + '<button class="modal-tab tark-tab active" onclick="switchTab(this,\'tab-tark-' + id + '\')">'
+    + '<span class="modal-tab-icon">&#9670;</span>'
+    + '<span class="modal-tab-text"><strong>Tark</strong><small>The Issue — Facts &amp; System</small></span>'
+    + '</button>'
+    + '<button class="modal-tab vitark-tab" onclick="switchTab(this,\'tab-vitark-' + id + '\')">'
+    + '<span class="modal-tab-icon">&#9670;</span>'
+    + '<span class="modal-tab-text"><strong>Vitark</strong><small>Solutions — What Can Fix It</small></span>'
+    + '</button>'
+    + '</div>'
+    + '<div id="tab-tark-' + id + '" class="tab-panel active">' + buildTarkTab(data) + '</div>'
+    + '<div id="tab-vitark-' + id + '" class="tab-panel">' + buildVitarkTab(data) + '</div>';
+
+  document.getElementById("modal-body").innerHTML = headerHtml;
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function switchTab(btn, targetId) {
+  var modal = btn.closest(".modal-body");
+  modal.querySelectorAll(".modal-tab").forEach(function(t) { t.classList.remove("active"); });
+  modal.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("active"); });
+  btn.classList.add("active");
+  document.getElementById(targetId).classList.add("active");
+}
+
+function toggleNav() {
+  var open = document.getElementById("nav-links").classList.toggle("open");
+  document.getElementById("nav-toggle").classList.toggle("open", open);
+  document.getElementById("nav-overlay").classList.toggle("open", open);
+  document.getElementById("nav-toggle").setAttribute("aria-expanded", open);
+  document.body.style.overflow = open ? "hidden" : "";
+}
+
+function closeNav() {
+  document.getElementById("nav-links").classList.remove("open");
+  document.getElementById("nav-toggle").classList.remove("open");
+  document.getElementById("nav-overlay").classList.remove("open");
+  document.getElementById("nav-toggle").setAttribute("aria-expanded", "false");
+  if (!document.getElementById("modal-overlay").classList.contains("open")) {
+    document.body.style.overflow = "";
+  }
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("active"); });
+  document.querySelectorAll(".nav-links a").forEach(function(a) { a.classList.remove("active"); });
+  document.getElementById("page-" + page).classList.add("active");
+  document.getElementById("nav-" + page).classList.add("active");
+  closeNav();
+  window.scrollTo(0, 0);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById("modal-overlay")) { closeModalDirect(); }
+}
+
+function closeModalDirect() {
+  document.getElementById("modal-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") {
+    closeNav();
+    closeModalDirect();
+  }
+});
+
+window.addEventListener("resize", function() {
+  if (window.innerWidth > 768) { closeNav(); }
+});
+</script>
+</body>
+</html>
